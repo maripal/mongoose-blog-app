@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
 
-const {Author, BlogPost} = require('./models');
+const {BlogPost, Author} = require('./models');
 const {PORT, DATABASE_URL} = require('./config');
 
 const app = express();
@@ -136,9 +136,10 @@ app.get('/blogposts', (req, res) => {
         res.json(blogposts.map(blogpost => {
             return {
                 id: blogpost._id,
-                author: blogpost.authorName,
+                author: blogpost.author,
                 content: blogpost.content,
                 title: blogpost.title,
+                comments: blogpost.comments
             }
         }));
     })
@@ -155,7 +156,7 @@ app.get('/blogposts/:id', (req, res) => {
         id: blogpost._id,
         title: blogpost.title,
         content: blogpost.content,
-        author: blogpost.authorName,
+        author: blogpost.author,
         comments: blogpost.comments
     });
 })
@@ -175,7 +176,7 @@ app.post('/blogposts', (req, res) => {
             return res.status(400).send(message);
         }
     }
-
+console.log("post is working");
     Author
     .findById(req.body.author_id)
     .then(author => {
@@ -183,10 +184,10 @@ app.post('/blogposts', (req, res) => {
             BlogPost.create({
                 title: req.body.title,
                 content: req.body.content,
-                author: req.body.author
+                author: req.body.id
             })
             .then(blogpost => res.status(201).json({
-                id: blogpost._id,
+                id: blogpost.id,
                 title: blogpost.title,
                 content: blogpost.content,
                 author: `${author.firstName} ${author.lastName}`,
